@@ -1,27 +1,22 @@
-# Architecture Diagram
+flowchart LR
+    Users["Users, tenants<br/>and internal tools"]
 
-```mermaid
-flowchart TB
-    Users["Users, tenants and internal tools"]
-
-    subgraph AWS["AWS: product plane"]
-        WAF["CloudFront and AWS WAF<br/>managed rules, per-IP rate limits"]
-        Gateway["APIM self-hosted gateway<br/>JWT, rate limits, quotas, schema checks"]
-        
+    subgraph AWS["AWS · Product Plane"]
+        direction TB
+        WAF["CloudFront + AWS WAF<br/>managed rules · rate limits"]
+        Gateway["APIM Self-hosted Gateway<br/>JWT · rate limits · quotas · schema"]
         TasksAPI["Tasks API<br/>tenant-scoped CRUD"]
         AssistantAPI["AI Assistant API<br/>summarises via LLM"]
-        
-        RDS["Amazon RDS<br/>data and pgvector"]
-        Egress["Egress firewall<br/>AI gateway only"]
+        RDS["Amazon RDS<br/>+ pgvector"]
+        Egress["Egress Firewall<br/>AI gateway only"]
     end
 
-    subgraph Azure["Azure: AI plane"]
-        Entra["Microsoft Entra ID<br/>issues and signs tokens, MFA"]
-        
-        AIGateway["APIM AI gateway<br/>token limits, Prompt Shields<br/>managed identity to the model"]
-        
-        Guardrails["Guardrails<br/>PII, PHI, injection"]
-        OpenAI["Azure OpenAI<br/>private endpoint"]
+    subgraph Azure["Azure · AI Plane"]
+        direction TB
+        Entra["Microsoft Entra ID<br/>tokens · MFA"]
+        AIGateway["APIM AI Gateway<br/>token limits · Prompt Shields"]
+        Guardrails["Guardrails<br/>PII · Injection"]
+        OpenAI["Azure OpenAI<br/>Private Endpoint"]
     end
 
     Users --> WAF
@@ -30,11 +25,11 @@ flowchart TB
     Gateway --> AssistantAPI
     TasksAPI --> RDS
     AssistantAPI --> Egress
-
-    Entra -.->|Token validation| Gateway
-    Entra -.->|Token validation| AIGateway
-
     Egress --> AIGateway
+
+    Entra -.-> Gateway
+    Entra -.-> AIGateway
+
     AIGateway --> Guardrails
     Guardrails --> OpenAI
     OpenAI --> Guardrails
@@ -42,4 +37,3 @@ flowchart TB
 
     classDef policy fill:#d6eaf8,stroke:#2980b9,stroke-width:2px
     class Gateway,AIGateway policy
-```

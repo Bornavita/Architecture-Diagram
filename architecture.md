@@ -1,3 +1,6 @@
+# Architecture Diagram
+
+```mermaid
 flowchart LR
     Users["Users, tenants<br/>and internal tools"]
 
@@ -37,3 +40,4 @@ flowchart LR
 
     classDef policy fill:#d6eaf8,stroke:#2980b9,stroke-width:2px
     class Gateway,AIGateway policy
+```
